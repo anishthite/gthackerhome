@@ -64,3 +64,27 @@ button:not(:disabled):active {
 button:focus {
 	border-color: #666;
 }
+
+.topnav {
+	overflow: hidden;
+	background-color: #444;
+  }
+
+  .topnav a {
+		float: left;
+		color: #f2f2f2;
+		text-align: center;
+		padding: 14px 16px;
+		text-decoration: none;
+		font-size: 17px;
+  }
+
+  .topnav a:hover {
+		background-color: #999;
+		color: black;
+  }
+
+  .topnav a.active {
+		background-color: #984b43;
+	color: white;
+  }
