@@ -44,9 +44,40 @@
 	main :global(a) {
 		color: rgb(0,0,150);
 	}
+	.topnav {
+	  overflow: hidden;
+	  background-color: #444;
+	}
+
+	.topnav a {
+  		float: left;
+  		color: #f2f2f2;
+  		text-align: center;
+  		padding: 14px 16px;
+  		text-decoration: none;
+  		font-size: 17px;
+	}
+
+	.topnav a:hover {
+  		background-color: #999;
+  		color: black;
+	}
+
+	.topnav a.active {
+  		background-color: #984b43;
+  	color: white;
+	}
 </style>
 
 <svelte:window on:hashchange={hashchange}/>
+
+<div class="topnav" id="myTopnav">
+  <a href="#home" class="active">GT Hacker Home</a>
+  <a href="./about.html">About</a>
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+  <i class="fa fa-bars"></i>
+  </a>
+</div>
 
 <main>
 	{#if item}
