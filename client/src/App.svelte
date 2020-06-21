@@ -65,7 +65,7 @@
 
 	.topnav a.active {
   		background-color: #984b43;
-  	color: white;
+  		color: white;
 	}
 </style>
 
@@ -74,6 +74,8 @@
 <div class="topnav" id="myTopnav">
   <a href="#home" class="active">GT Hacker Home</a>
   <a href="./about.html">About</a>
+  <a href="#./login.html">Login</a>
+  <a href="#./signup.html">Sign Up</a>
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
   <i class="fa fa-bars"></i>
   </a>
