@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import List from './List.svelte';
 	import Item from './Item.svelte';
-
 	let item;
 	let page;
 
@@ -74,8 +73,8 @@
 <div class="topnav" id="myTopnav">
   <a href="#home" class="active">GT Hacker Home</a>
   <a href="./about.html">About</a>
-  <a href="#./login.html">Login</a>
-  <a href="#./signup.html">Sign Up</a>
+  <a href="./login.html">Login</a>
+  <a href="./signup.html">Sign Up</a>
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
   <i class="fa fa-bars"></i>
   </a>
