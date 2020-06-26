@@ -1,7 +1,6 @@
 # ServerSide
 ## User API
 * validate user gt email for creation
-* hash password
 * validate function
 * public read function
 * invite tree

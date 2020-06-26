@@ -2,12 +2,12 @@ use diesel;
 use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
 use serde::{ Serialize, Deserialize };
-use diesel::{ Queryable, Insertable, AsChangeset};
+use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
 
 use crate::schema::users;
 
 #[table_name = "users"]
-#[derive(Serialize, Deserialize, Queryable, Insertable,AsChangeset, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, QueryId, Queryable, Insertable,AsChangeset, Debug, PartialEq, Eq)]
 pub struct User {
     pub email: String, 
     pub username: String,
@@ -28,6 +28,10 @@ impl User{
 
     pub fn read(connection: &MysqlConnection) -> Vec<User> {
         users::table.order(users::username.asc()).load::<User>(connection).unwrap()
+    }
+
+     pub fn read_single(username: String, connection: &MysqlConnection) -> Result<User, diesel::result::Error> {
+        users::table.find(username).first(connection)
     }
 
     pub fn update(username: String, user: User, connection: &MysqlConnection) -> bool {

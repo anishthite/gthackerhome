@@ -43,6 +43,21 @@
   </style>
   
   </head>
+
+<script>
+function sendForm() {
+  var x = document.forms["myForm"]["fname"].value;
+  if (x == "") {
+    alert("Name must be filled out");
+    return false;
+  }
+} 
+</script>
+
+
+
+
+
   <body>
   <div class="topnav" id="myTopnav">
     <a href="./index.html">GT Hacker Home</a>
@@ -58,8 +73,8 @@
     <h1>Sign up for the full experience...</h1>
     <form action="action_page.php">
 
-      <label for="fname">Email:</label>
-      <input type="text" id="fname" name="firstname" placeholder="">
+      <label for="fname">GT Email (not shared publicly):</label>
+      <input type="text" id="email" name="firstname" placeholder="Used to keep this community local to GT. (Email aquajet for potential exemptions)">
     
       <label for="fname">Username:</label>
       <input type="text" id="fname" name="firstname" placeholder="">
