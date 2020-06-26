@@ -1,8 +1,11 @@
 [development]
-address = "192.168.1.10"
+address = "localhost"
 port = 4343
 
-
+[staging]
+address = "192.168.1.10"
+tls = {certs = "/home/tobias/fullchain1.pem", key = "/home/tobias/privkey1.pem"}
+port = 4343
 
 [production]
 address = "192.168.1.10"
