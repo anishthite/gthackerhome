@@ -81,17 +81,22 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
         Err(_e) => {response.set_raw_status(699, "Tripped a Wire"); return response;}
     }
     match mybool {
-        Ok(_x) => {
-                      let cookie = Cookie::build("username", my_user_copy.clone())
-                        //.domain("www.rust-lang.org")
-                        //.path("/")
-                        .secure(true)
-                        .http_only(true)
-                        .finish();
-                        response.set_header(cookie);
-                        let mycookie = Cookie::build("username", my_user_copy).secure(true).finish();
-                        response.adjoin_header(mycookie);
-                        return response;
+        Ok(x) => {
+                    if x == true {  
+                        let cookie = Cookie::build("username", my_user_copy.clone())
+                            //.domain("www.rust-lang.org")
+                            //.path("/")
+                            .secure(true)
+                            .http_only(true)
+                            .finish();
+                            response.set_header(cookie);
+                            let mycookie = Cookie::build("username", my_user_copy).secure(true).finish();
+                            response.adjoin_header(mycookie);
+                            return response;
+                    }
+                    else {
+                        response.set_raw_status(699, "Tripped a Wire"); return response;
+                    }
                 }
         Err(_e) => {response.set_raw_status(699, "Tripped a Wire"); return response;}
  
