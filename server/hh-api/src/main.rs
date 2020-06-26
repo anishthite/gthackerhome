@@ -110,20 +110,14 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
 
 //read user
 #[get("/<username>")]
-fn view(username: String) -> Response<'static> {
+fn view(username: String, connection: db::Connection) -> JsonValue {
     format!("username: {}", username);
 
-    let mut response = Response::new();
-    //response.set_header(Cookie::new("hello", "world!"));
-    
-    let cookie = Cookie::build("name", "value")
-    .domain("www.rust-lang.org")
-    //.path("/")
-    .secure(true)
-    .http_only(true)
-    .finish();
-    response.set_header(cookie);
-    return response
+    let myuser_result = User::read_single(username, &connection);
+    match myuser_result {
+        Ok(user) => return json!({"username":user.username, "about":user.about, "admin":user.admin}),
+        Err(e) => return json!({"failure":"database err"}) 
+    }
 }
 
 fn main() {
