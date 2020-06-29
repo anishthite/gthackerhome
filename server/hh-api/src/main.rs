@@ -17,14 +17,20 @@ use rocket_contrib::json::{Json, JsonValue};
 use rocket::http::{ Status, Cookie };
 use rocket::Response;
 use rocket::response::status;
+#[macro_use] extern crate nanoid;
+use nanoid::nanoid;
 mod users;
+mod items;
 mod schema;
 mod db;
 use users::{User};
+use items::{Item};
+use std::time::SystemTime;
+use chrono::prelude::*;
 
 
 
-
+//Form Structs
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
 pub struct LoginForm {
     pub username: String,
@@ -37,17 +43,20 @@ pub struct LoginCookie {
     pub display: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
+pub struct CreatePostForm {
+    pub author: String,
+    pub itemtype: String,
+    pub title: String, 
+    pub url: Option<String>,
+    pub text: Option<String>,
+} 
 
-
-
-#[get("/<name>/<age>")]
-fn hello(name: String, age: u8) -> String {
-    format!("Hello, {} year old named {}!", age, name)
-}
+//User Functions
 
 //Create user, 
-#[post("/create", data = "<user>")]
-fn create(user: Json<User>, connection: db::Connection) -> Status {
+#[post("/sign_up", data = "<user>")]
+fn sign_up(user: Json<User>, connection: db::Connection) -> Status {
     
     let mut insert = User {admin : Some(0), ..user.into_inner()};
     
@@ -69,6 +78,7 @@ fn create(user: Json<User>, connection: db::Connection) -> Status {
     return Status::Created;
 }
 
+//Login User
 #[post("/login", data = "<form>")]
 fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static> {
     let my_user = LoginForm{..form.into_inner()};
@@ -104,10 +114,6 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
 
 }
 
-
-
-
-
 //read user
 #[get("/<username>")]
 fn view(username: String, connection: db::Connection) -> JsonValue {
@@ -120,11 +126,55 @@ fn view(username: String, connection: db::Connection) -> JsonValue {
     }
 }
 
+//Post API
+
+
+//read posts
+#[get("/posts")]
+fn posts(connection: db::Connection) -> Json<Vec<Item>> {
+    let posts = Item::read_posts(&connection);
+    return Json(posts); 
+}
+
+
+
+//create_post
+#[post("/create_post", data = "<item>")]
+fn create_post(item: Json<CreatePostForm>, connection: db::Connection) -> Status {
+    let alphabet: [char; 16] = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f'
+    ];
+    let my_item_form = CreatePostForm{..item.into_inner()};
+    let myid = nanoid!(10, &alphabet); 
+    let curr_time = Utc::now().timestamp(); 
+    let new_item = Item {
+        id: myid, 
+        parentid: None,
+        title: Some(my_item_form.title),
+        descendents: Some(0), 
+        score: Some(0), 
+        time: curr_time,
+        author: my_item_form.author,
+        itemtype: my_item_form.itemtype,
+        url: my_item_form.url,
+        text: my_item_form.text
+    };
+    Item::create(new_item, &connection);
+    Status::Created
+
+}
+
+//create_comment
+
+
+//render item
+
+
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/testy", routes![hello])
         .mount("/user", routes![view])
-        .mount("/user_api", routes![create, login])
+        .mount("/user_api", routes![sign_up, login])
+        .mount("/item_api", routes![posts, create_post])
         .launch();
 }
