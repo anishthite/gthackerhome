@@ -20,8 +20,10 @@ use serde::{ Serialize, Deserialize };
 use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket::http::{ Status, Cookie };
+use rocket::http::hyper::header::Accept;
 use rocket::Response;
 use rocket::response::status;
+use std::io::Cursor;
 #[macro_use] extern crate nanoid;
 use nanoid::nanoid;
 mod users;
@@ -133,12 +135,7 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
                             .http_only(true)
                             .finish();
                             response.set_header(cookie);
-                            let mycookie = Cookie::build("username", my_user_copy)
-                                .domain("gthackerhome.github.io")
-                                .path("/")
-                                .secure(true)
-                                .finish();
-                            response.adjoin_header(mycookie);
+                            response.set_sized_body(Cursor::new(my_user_copy));
                             return response;
                     }
                     else {
