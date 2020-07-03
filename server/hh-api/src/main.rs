@@ -3,8 +3,13 @@
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate diesel;
+extern crate rocket_cors;
+use rocket::http::Method; 
 
-
+use rocket_cors::{
+    AllowedHeaders, AllowedOrigins, Error, 
+    Cors, CorsOptions 
+};
 
 extern crate r2d2;
 extern crate r2d2_diesel;
@@ -27,6 +32,34 @@ use users::{User};
 use items::{Item};
 use std::time::SystemTime;
 use chrono::prelude::*;
+
+
+//CORS
+fn make_cors() -> Cors {
+    let allowed_origins = AllowedOrigins::all(); // 4.
+  //  let allowed_origins = AllowedOrigins::some_exact(&[ // 4.
+  //      "https:gthackerhome.github.io",
+  //      "http://localhost:8080",
+  //      "http://127.0.0.1:8080",
+  //      "http://localhost:8000",
+  //      "http://0.0.0.0:8000"
+  //  ]);
+
+    CorsOptions { // 5.
+        allowed_origins,
+        allowed_methods: vec![Method::Get, Method::Post].into_iter().map(From::from).collect(), 
+        allowed_headers: AllowedHeaders::all(),
+    //    allowed_headers: AllowedHeaders::some(&[
+    //        "Authorization",
+    //        "Accept",
+    //        "Access-Control-Allow-Origin", 
+    //    ]),
+        allow_credentials: true,
+        ..Default::default()
+    }
+    .to_cors()
+    .expect("error while building CORS")
+}
 
 
 
@@ -94,13 +127,17 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
         Ok(x) => {
                     if x == true {  
                         let cookie = Cookie::build("username", my_user_copy.clone())
-                            //.domain("www.rust-lang.org")
-                            //.path("/")
+                            .domain("greetez.com")
+                            .path("/")
                             .secure(true)
                             .http_only(true)
                             .finish();
                             response.set_header(cookie);
-                            let mycookie = Cookie::build("username", my_user_copy).secure(true).finish();
+                            let mycookie = Cookie::build("username", my_user_copy)
+                                .domain("gthackerhome.github.io")
+                                .path("/")
+                                .secure(true)
+                                .finish();
                             response.adjoin_header(mycookie);
                             return response;
                     }
@@ -113,6 +150,29 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
     }
 
 }
+
+//test cookie
+#[get("/cookie")]
+fn cookie() -> Response<'static> {
+    let mut response = Response::new();                    
+    let cookie = Cookie::build("username", "user")
+                            .domain("greetez.com")
+                            .path("/")
+                            .secure(true)
+                            .http_only(true)
+                            .finish();
+                            response.set_header(cookie);
+                            let mycookie = Cookie::build("username", "user")
+                                .domain("gthackerhome.github.io")
+                                .path("/")
+                                .secure(true)
+                                .finish();
+                            response.adjoin_header(mycookie);
+                            return response;
+}
+
+
+
 
 //read user
 #[get("/<username>")]
@@ -174,7 +234,8 @@ fn main() {
     rocket::ignite()
         .manage(db::connect())
         .mount("/user", routes![view])
-        .mount("/user_api", routes![sign_up, login])
+        .mount("/user_api", routes![sign_up, login, cookie])
         .mount("/item_api", routes![posts, create_post])
+        .attach(make_cors())
         .launch();
 }
