@@ -7,7 +7,7 @@ use trees::{tr,Tree,Forest};
 use crate::schema::{items, items_relationships};
 
 #[table_name = "items"]
-#[derive(Serialize, Deserialize, QueryId, Queryable, Insertable, AsChangeset, Debug, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, QueryId, Queryable, Insertable, AsChangeset, Debug, PartialEq, Eq)]
 pub struct Item {
     pub id: String,
     pub author: String,
@@ -32,7 +32,7 @@ pub struct ItemRelationship {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ItemNode {
     pub item: Item,
-    pub descendents: Option<Vec<ItemNode>>
+    pub descendents: Vec<ItemNode>
 }
 
 
@@ -65,7 +65,7 @@ impl Item{
     //update post comment
     //delete post/comment
     pub fn read_posts(connection: &MysqlConnection) -> Vec<Item> {
-        items::table.filter(items::itemtype.eq("post")).order(items::id.desc()).load::<Item>(connection).unwrap()
+        items::table.filter(items::itemtype.eq("post")).order(items::time.desc()).load::<Item>(connection).unwrap()
     }
 
     pub fn read(connection: &MysqlConnection) -> Vec<Item> {
@@ -76,9 +76,16 @@ impl Item{
         items::table.find(id).first(connection)
     }
 
-    //pub fn render_single(rootitem: Item, connection: &MysqlConnection) -> ItemNode {
-    //    let root_node = ItemNode {item: rootitem, descendents: Some(Vec::new())};  
-    //}
+    pub fn render_single(rootitem: Item, connection: &MysqlConnection) -> ItemNode {
+       let child_items = items::table.filter(items::parentid.eq(&rootitem.id)).load::<Item>(connection).unwrap();
+       let mut descendents: Vec<ItemNode> = Vec::new();
+       for child_item in &child_items{
+           let child_node = Item::render_single(Item::clone(child_item), &connection);
+           descendents.push(child_node);
+       }
+       let root_node = ItemNode {item: rootitem, descendents: descendents};
+       root_node
+    }
 //    pub fn update(id: String, user: User, connection: &MysqlConnection) -> bool {
 //        diesel::update(users::table.find(username)).set(&user).execute(connection).is_ok()
 //    }

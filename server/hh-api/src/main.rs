@@ -19,7 +19,7 @@ use bcrypt::{DEFAULT_COST, hash, verify};
 use serde::{ Serialize, Deserialize };
 use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
 use rocket_contrib::json::{Json, JsonValue};
-use rocket::http::{ Status, Cookie };
+use rocket::http::{ Status, Cookie, Cookies };
 use rocket::http::hyper::header::Accept;
 use rocket::Response;
 use rocket::response::status;
@@ -31,7 +31,7 @@ mod items;
 mod schema;
 mod db;
 use users::{User};
-use items::{Item};
+use items::{Item, ItemNode};
 use std::time::SystemTime;
 use chrono::prelude::*;
 
@@ -80,7 +80,6 @@ pub struct LoginCookie {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
 pub struct CreatePostForm {
-    pub author: String,
     pub itemtype: String,
     pub title: String, 
     pub url: Option<String>,
@@ -193,17 +192,34 @@ fn posts(connection: db::Connection) -> Json<Vec<Item>> {
     return Json(posts); 
 }
 
+#[get("/<id>")]
+fn render(id: String, connection: db::Connection) -> JsonValue{
+    let rootitem = match Item::read_single(id, &connection){
+    Ok(x) => x,
+    Err(_e) => {return json!({"failure":"database err"})}
+    };
+    let itemtree = Item::render_single(rootitem, &connection);
+    return json!(Json(itemtree).into_inner());
+}
+
+
 
 
 //create_post
 #[post("/create_post", data = "<item>")]
-fn create_post(item: Json<CreatePostForm>, connection: db::Connection) -> Status {
+fn create_post(item: Json<CreatePostForm>, cookies: Cookies, connection: db::Connection) -> Status {
     let alphabet: [char; 16] = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f'
     ];
     let my_item_form = CreatePostForm{..item.into_inner()};
     let myid = nanoid!(10, &alphabet); 
     let curr_time = Utc::now().timestamp(); 
+    
+    let author = match cookies.get("username") {
+        Some(x) => String::from(x.value()),
+        None => return Status::NotAcceptable,
+    };
+
     let new_item = Item {
         id: myid, 
         parentid: None,
@@ -211,7 +227,7 @@ fn create_post(item: Json<CreatePostForm>, connection: db::Connection) -> Status
         descendents: Some(0), 
         score: Some(0), 
         time: curr_time,
-        author: my_item_form.author,
+        author: author,
         itemtype: my_item_form.itemtype,
         url: my_item_form.url,
         text: my_item_form.text
@@ -231,6 +247,7 @@ fn main() {
     rocket::ignite()
         .manage(db::connect())
         .mount("/user", routes![view])
+        .mount("/items", routes![render])
         .mount("/user_api", routes![sign_up, login, cookie])
         .mount("/item_api", routes![posts, create_post])
         .attach(make_cors())
