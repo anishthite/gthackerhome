@@ -22,16 +22,6 @@
 		}
 	}
 function showUsername() {
-	var username = getCookie("username");
-	if (username != "") {
-		document.getElementById("signup").style.visibility="hidden";
-		document.getElementById("welcomeusername").innerHTML="<a href='https://greetez.com:4343/user/" + username + "'>Welcome " + username + " </a>";
-		document.getElementById("welcomeusername").style.visibility="visible";
-	} else {
-		document.getElementById("signup").style.visibility="visible";
-		document.getElementById("welcomeusername").style.visibility="hidden";
-	}
-		
 }
 
 function getCookie(cname) {
@@ -102,7 +92,7 @@ function getCookie(cname) {
   <a href="#home" class="active">GT Hacker Home</a>
   <a href="./about.html">About</a>
     <div id="signup"><a href="./login.html" >Login</a>
-	<a href="./signup.html" class="active">Sign Up</a></div>
+	<a href="./signup.html" >Sign Up</a></div>
 	<div id="welcomeusername"></div>
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
   <i class="fa fa-bars"></i>
