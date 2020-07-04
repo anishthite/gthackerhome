@@ -21,8 +21,36 @@
 			window.location.hash = '/top/1';
 		}
 	}
+function showUsername() {
+	var username = getCookie("username");
+	if (username != "") {
+		document.getElementById("signup").style.visibility="hidden";
+		document.getElementById("welcomeusername").innerHTML="<a href='https://greetez.com:4343/user/" + username + "'>Welcome " + username + " </a>";
+		document.getElementById("welcomeusername").style.visibility="visible";
+	} else {
+		document.getElementById("signup").style.visibility="visible";
+		document.getElementById("welcomeusername").style.visibility="hidden";
+	}
+		
+}
 
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 	onMount(hashchange);
+	window.onload = showUsername();
 </script>
 
 <style>
@@ -73,8 +101,9 @@
 <div class="topnav" id="myTopnav">
   <a href="#home" class="active">GT Hacker Home</a>
   <a href="./about.html">About</a>
-  <a href="./login.html">Login</a>
-  <a href="./signup.html">Sign Up</a>
+    <div id="signup"><a href="./login.html" >Login</a>
+	<a href="./signup.html" class="active">Sign Up</a></div>
+	<div id="welcomeusername"></div>
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
   <i class="fa fa-bars"></i>
   </a>
