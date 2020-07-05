@@ -7,7 +7,7 @@ extern crate rocket_cors;
 use rocket::http::Method; 
 
 use rocket_cors::{
-    AllowedHeaders, AllowedOrigins, Error, 
+    AllowedHeaders, AllowedOrigins, 
     Cors, CorsOptions 
 };
 
@@ -15,16 +15,13 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate bcrypt;
 
-use bcrypt::{DEFAULT_COST, hash, verify};
+use bcrypt::{hash, verify};
 use serde::{ Serialize, Deserialize };
-use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket::http::{ Status, Cookie, Cookies };
-use rocket::http::hyper::header::Accept;
 use rocket::Response;
-use rocket::response::status;
 use std::io::Cursor;
-#[macro_use] extern crate nanoid;
+extern crate nanoid;
 use nanoid::nanoid;
 mod users;
 mod items;
@@ -32,7 +29,6 @@ mod schema;
 mod db;
 use users::{User};
 use items::{Item, ItemNode};
-use std::time::SystemTime;
 use chrono::prelude::*;
 
 
@@ -80,11 +76,17 @@ pub struct LoginCookie {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
 pub struct CreatePostForm {
-    pub itemtype: String,
     pub title: String, 
     pub url: Option<String>,
     pub text: Option<String>,
 } 
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
+pub struct CreateCommentForm {
+    pub text: String,
+    pub parentid: String
+
+}
 
 //User Functions
 
@@ -148,25 +150,25 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
 }
 
 //test cookie
-#[get("/cookie")]
-fn cookie() -> Response<'static> {
-    let mut response = Response::new();                    
-    let cookie = Cookie::build("username", "user")
-                            .domain("greetez.com")
-                            .path("/")
-                            .secure(true)
-                            .http_only(true)
-                            .finish();
-                            response.set_header(cookie);
-                            let mycookie = Cookie::build("username", "user")
-                                .domain("gthackerhome.github.io")
-                                .path("/")
-                                .secure(true)
-                                .finish();
-                            response.adjoin_header(mycookie);
-                            return response;
-}
-
+//#[get("/cookie")]
+//fn cookie() -> Response<'static> {
+//    let mut response = Response::new();                    
+//    let cookie = Cookie::build("username", "user")
+//                            .domain("greetez.com")
+//                            .path("/")
+//                            .secure(true)
+//                            .http_only(true)
+//                            .finish();
+//                            response.set_header(cookie);
+//                            let mycookie = Cookie::build("username", "user")
+//                                .domain("gthackerhome.github.io")
+//                                .path("/")
+//                                .secure(true)
+//                                .finish();
+//                            response.adjoin_header(mycookie);
+//                            return response;
+//}
+//
 
 
 
@@ -228,7 +230,7 @@ fn create_post(item: Json<CreatePostForm>, cookies: Cookies, connection: db::Con
         score: Some(0), 
         time: curr_time,
         author: author,
-        itemtype: my_item_form.itemtype,
+        itemtype: String::from("post"),
         url: my_item_form.url,
         text: my_item_form.text
     };
@@ -238,6 +240,37 @@ fn create_post(item: Json<CreatePostForm>, cookies: Cookies, connection: db::Con
 }
 
 //create_comment
+#[post("/create_comment", data = "<item>")]
+fn create_comment(item: Json<CreateCommentForm>, cookies: Cookies, connection: db::Connection) -> Status {
+    let alphabet: [char; 16] = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f'
+    ];
+    let my_item_form = CreateCommentForm{..item.into_inner()};
+    let myid = nanoid!(10, &alphabet); 
+    let curr_time = Utc::now().timestamp(); 
+    
+    let author = match cookies.get("username") {
+        Some(x) => String::from(x.value()),
+        None => return Status::NotAcceptable,
+    };
+
+    let new_item = Item {
+        id: myid, 
+        parentid: Some(my_item_form.parentid),
+        title: None,
+        descendents: Some(0), 
+        score: Some(0), 
+        time: curr_time,
+        author: author,
+        itemtype: String::from("comment"),
+        url: None,
+        text: Some(my_item_form.text)
+    };
+    Item::create(new_item, &connection);
+    Status::Created
+
+}
+
 
 
 //render item
@@ -246,10 +279,8 @@ fn create_post(item: Json<CreatePostForm>, cookies: Cookies, connection: db::Con
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/user", routes![view])
-        .mount("/items", routes![render])
-        .mount("/user_api", routes![sign_up, login, cookie])
-        .mount("/item_api", routes![posts, create_post])
+        .mount("/user_api", routes![view, sign_up, login])
+        .mount("/item_api", routes![render, posts, create_post])
         .attach(make_cors())
         .launch();
 }
