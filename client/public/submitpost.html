@@ -88,16 +88,15 @@ function getCookie(cname) {
 
 function handleFormSubmit() {
 var mydata = {
-              "itemtype": "post",
               "title": document.getElementById('title').value,
               "url": document.getElementById('url').value,
               "text": document.getElementById('posttext').value,
               
             };
   axios.post('https://greetez.com:4343/item_api/create_post',
-  mydata
+  mydata,{withCredentials: true}
   ).then((response) => {
-	alert(response);
+	alert("created post");
   }, (error) => {
     console.log(error);
 	alert("There's been an error, please try using a different username");
