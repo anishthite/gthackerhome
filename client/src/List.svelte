@@ -2,19 +2,22 @@
 	import { beforeUpdate } from "svelte";
 	import Summary from "./Summary.svelte";
 
-	const PAGE_SIZE = 20;
+	const PAGE_SIZE = 40;
 
 	export let page;
 
 	let items;
 	let offset;
+	let postsize
 
-	$: fetch(`https://node-hnapi.herokuapp.com/news?page=${page}`)
+	$: fetch(`https://greetez.com:4343/item_api/posts`)
 		.then(r => r.json())
 		.then(data => {
-			items = data;
+			postsize = data.length;
+			items = data.slice(PAGE_SIZE * (page-1), PAGE_SIZE * (page-1) + PAGE_SIZE);
 			offset = PAGE_SIZE * (page - 1);
 			window.scrollTo(0, 0);
+			console.log(data)
 		});
 </script>
 
@@ -40,7 +43,9 @@
 		<Summary {item} {i} {offset}/>
 	{/each}
 
-	<a href="#/top/{page + 1}">page {page + 1}</a>
+	{#if PAGE_SIZE * (page-1) + PAGE_SIZE < postsize}
+		<a href="#/top/{page + 1}">page {page + 1}</a>
+	{/if}	
 {:else}
 	<p class="loading">loading...</p>
 {/if}

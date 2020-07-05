@@ -21,24 +21,6 @@
 			window.location.hash = '/top/1';
 		}
 	}
-function showUsername() {
-}
-
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
 	onMount(hashchange);
 	window.onload = showUsername();
 </script>
@@ -88,16 +70,6 @@ function getCookie(cname) {
 
 <svelte:window on:hashchange={hashchange}/>
 
-<div class="topnav" id="myTopnav">
-  <a href="#home" class="active">GT Hacker Home</a>
-  <a href="./about.html">About</a>
-    <div id="signup"><a href="./login.html" >Login</a>
-	<a href="./signup.html" >Sign Up</a></div>
-	<div id="welcomeusername"></div>
-  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-  <i class="fa fa-bars"></i>
-  </a>
-</div>
 
 <main>
 	{#if item}
