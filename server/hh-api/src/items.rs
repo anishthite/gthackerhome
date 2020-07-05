@@ -45,25 +45,16 @@ impl Item{
             .expect("Error creating new item");
 
 
-       if item.itemtype == "comment" && item.parentid.is_some() { 
-            let pc = ItemRelationship{parent: item.parentid.unwrap(), child: item.id};   
-            diesel::insert_into(items_relationships::table)
-                .values(&pc)
-                .execute(connection)
-                .expect("Error adding item to pc table");
-        }
+//       if item.itemtype == "comment" && item.parentid.is_some() { 
+//            let pc = ItemRelationship{parent: item.parentid.unwrap(), child: item.id};   
+//            diesel::insert_into(items_relationships::table)
+//                .values(&pc)
+//                .execute(connection)
+//                .expect("Error adding item to pc table");
+//        }
        items::table.order(items::id.desc()).first(connection).unwrap()
     }
-    //TODO: Maybe make this more efficent by only taking top x
-    //
-    //General TODO:
-    //create post/comment
-    //read: returns list of everything
-    //read_posts: returns list of posts only in chron order
-    //read_single: gets item data by id
-    //render: given item id itll render everything below it
-    //update post comment
-    //delete post/comment
+    
     pub fn read_posts(connection: &MysqlConnection) -> Vec<Item> {
         items::table.filter(items::itemtype.eq("post")).order(items::time.desc()).load::<Item>(connection).unwrap()
     }

@@ -280,7 +280,7 @@ fn main() {
     rocket::ignite()
         .manage(db::connect())
         .mount("/user_api", routes![view, sign_up, login])
-        .mount("/item_api", routes![render, posts, create_post])
+        .mount("/item_api", routes![render, posts, create_post, create_comment])
         .attach(make_cors())
         .launch();
 }
