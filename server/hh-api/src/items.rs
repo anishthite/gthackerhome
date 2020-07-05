@@ -45,13 +45,19 @@ impl Item{
             .expect("Error creating new item");
 
 
-//       if item.itemtype == "comment" && item.parentid.is_some() { 
+       if item.itemtype == "comment" && item.parentid.is_some() { 
+            let mut parentitem = Item::read_single(item.parentid.unwrap(), &connection).unwrap();
+            parentitem.descendents = match parentitem.descendents {
+                Some(x) => Some(x + 1),
+                None => Some(1)
+            }
+
 //            let pc = ItemRelationship{parent: item.parentid.unwrap(), child: item.id};   
 //            diesel::insert_into(items_relationships::table)
 //                .values(&pc)
 //                .execute(connection)
 //                .expect("Error adding item to pc table");
-//        }
+        }
        items::table.order(items::id.desc()).first(connection).unwrap()
     }
     
@@ -77,8 +83,8 @@ impl Item{
        let root_node = ItemNode {item: rootitem, descendents: descendents};
        root_node
     }
-//    pub fn update(id: String, user: User, connection: &MysqlConnection) -> bool {
-//        diesel::update(users::table.find(username)).set(&user).execute(connection).is_ok()
-//    }
+    pub fn update(id: String, item: Item, connection: &MysqlConnection) -> bool {
+        diesel::update(items::table.find(id)).set(&item).execute(connection).is_ok()
+    }
 
 }
