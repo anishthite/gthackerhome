@@ -50,8 +50,8 @@ impl Item{
             parentitem.descendents = match parentitem.descendents {
                 Some(x) => Some(x + 1),
                 None => Some(1)
-            }
-
+            };
+            Item::update(parentitem.id, parentitem, &connection);
 //            let pc = ItemRelationship{parent: item.parentid.unwrap(), child: item.id};   
 //            diesel::insert_into(items_relationships::table)
 //                .values(&pc)
