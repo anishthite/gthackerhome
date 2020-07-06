@@ -5,7 +5,7 @@
 	if (getCookie("username") != "") {
 		signed_in = true;
 	} else {
-		signed_in = true; //TODO: change thsi before deploying
+		signed_in = false;
 	}
 
 
