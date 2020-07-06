@@ -4,6 +4,7 @@
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate diesel;
 extern crate rocket_cors;
+extern crate time;
 use rocket::http::Method; 
 
 use rocket_cors::{
@@ -34,14 +35,14 @@ use chrono::prelude::*;
 
 //CORS
 fn make_cors() -> Cors {
-    let allowed_origins = AllowedOrigins::all(); // 4.
-  //  let allowed_origins = AllowedOrigins::some_exact(&[ // 4.
-  //      "https:gthackerhome.github.io",
-  //      "http://localhost:8080",
-  //      "http://127.0.0.1:8080",
-  //      "http://localhost:8000",
-  //      "http://0.0.0.0:8000"
-  //  ]);
+    // let allowed_origins = AllowedOrigins::all(); // 4.
+   let allowed_origins = AllowedOrigins::some_exact(&[ // 4.
+       "https:gthackerhome.github.io",
+       "http://localhost:8080",
+       "http://127.0.0.1:8080",
+       "http://localhost:8000",
+       "http://0.0.0.0:8000"
+   ]);
 
     CorsOptions { // 5.
         allowed_origins,
@@ -148,6 +149,26 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
     }
 
 }
+
+//Logout User
+#[get("/logout")]
+fn logout() -> Response<'static> {
+    let mut response = Response::new();
+    let mut now = time::now();
+    now.tm_year -= 1;  
+    let mut cookie = Cookie::build("username", "")
+        .domain("greetez.com")
+        .path("/")
+        .secure(true)
+        .http_only(true)
+        .finish();
+        cookie.set_expires(now);
+        response.set_header(cookie);
+        return response;
+ 
+
+}
+
 
 //test cookie
 //#[get("/cookie")]

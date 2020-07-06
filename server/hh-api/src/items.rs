@@ -3,7 +3,6 @@ use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
 use serde::{ Serialize, Deserialize };
 use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
-use trees::{tr,Tree,Forest};
 use crate::schema::{items, items_relationships};
 
 #[table_name = "items"]

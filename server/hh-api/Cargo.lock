@@ -423,7 +423,7 @@ dependencies = [
  "rocket_cors",
  "serde",
  "serde_json",
- "trees",
+ "time",
 ]
 
 [[package]]
@@ -492,12 +492,6 @@ dependencies = [
  "unicode-bidi",
  "unicode-normalization",
 ]
-
-[[package]]
-name = "indexed"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64d9ca77b99ee70a9251b23d3a5167336665b91addfdd52381cf13d3693427e6"
 
 [[package]]
 name = "indexmap"
@@ -1331,15 +1325,6 @@ name = "traitobject"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efd1f82c56340fdf16f2a953d7bda4f8fdffba13d93b00844c25572110b26079"
-
-[[package]]
-name = "trees"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fcd12c7f693050b0724c2b7d678c62ae8370554b33267702d5adf4b4fa116fb"
-dependencies = [
- "indexed",
-]
 
 [[package]]
 name = "typeable"
