@@ -3,8 +3,40 @@
 
 	export let item;
 	export let returnTo;
+	export let descendents = []
+	descendents = item.descendents;
+	console.log(item.descendents.length);
 
-	$: url = !item.domain ? `https://news.ycombinator.com/${item.url}` : item.url;
+	let cats = [
+		{ id: 'J---aiyznGQ', name: 'Keyboard Cat' },
+		{ id: 'z_AbfPXTKms', name: 'Maru' },
+		{ id: 'OUtn3pvWmpg', name: 'Henri The Existential Cat' }
+	];
+	console.log(cats);
+	console.log(item.descendents);
+
+
+	$: url = !item.item.url ? `https://gthackerhome.github.io/item/${item.item.id}` : item.item.url;
+
+	function calc_age() {
+		const start = Math.floor(Date.now() / 1000);
+		const elapsed_time = (start - item.item.time);
+		if (elapsed_time < 60) {
+			return `${'just now'}`
+		}
+		if (elapsed_time < 3600) {
+			return `${Math.floor(elapsed_time / 60)} ${'minutes ago'}`
+		}
+		if (elapsed_time < 86400) {
+			return `${Math.floor(elapsed_time / 3600)} ${'hours ago'}`
+		}
+		else {
+			return `${Math.floor(elapsed_time / 86400)} ${'days ago'}`
+		}
+		return `${start - item.item.time}`;
+	}
+
+
 </script>
 
 <style>
@@ -23,21 +55,21 @@
 	}
 </style>
 
-<a href={returnTo}>&laquo; back</a>
+<a href=https://gthackerhome.github.io>&laquo; back</a>
 
 <article>
 	<a href="{url}">
-		<h1>{item.title}</h1>
-		{#if item.domain}
-			<small>{item.domain}</small>
+		<h1>{item.item.title}</h1>
+		{#if item.item.url}
+			<small>{item.item.url}</small>
 		{/if}
 	</a>
 
-	<p class="meta">submitted by {item.user} {item.time_ago}
+	<p class="meta">submitted by {item.item.author} {calc_age()}
 </article>
 
 <div class="comments">
-	{#each item.comments as comment}
-		<Comment {comment}/>
+	{#each item.descendents as comment}
+		 <Comment {comment}/> 
 	{/each}
-</div>
+</div> 

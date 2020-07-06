@@ -11,7 +11,7 @@
 
 		if (path.startsWith('/item')) {
 			const id = path.slice(6);
-			item = await fetch(`https://node-hnapi.herokuapp.com/item/${id}`).then(r => r.json());
+			item = await fetch(`https://greetez.com:4343/item_api/${id}`).then(r => r.json());
 
 			window.scrollTo(0,0);
 		} else if (path.startsWith('/top')) {

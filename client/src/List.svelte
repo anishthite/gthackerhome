@@ -17,7 +17,6 @@
 			items = data.slice(PAGE_SIZE * (page-1), PAGE_SIZE * (page-1) + PAGE_SIZE);
 			offset = PAGE_SIZE * (page - 1);
 			window.scrollTo(0, 0);
-			console.log(data)
 		});
 </script>
 

@@ -12,7 +12,7 @@
 		const start = Math.floor(Date.now() / 1000);
 		const elapsed_time = (start - item.time);
 		if (elapsed_time < 60) {
-			return `${elapsed_time}`
+			return `${'just now'}`
 		}
 		if (elapsed_time < 3600) {
 			return `${Math.floor(elapsed_time / 60)} ${'minutes ago'}`
