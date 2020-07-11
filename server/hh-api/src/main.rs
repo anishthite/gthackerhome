@@ -35,14 +35,14 @@ use chrono::prelude::*;
 
 //CORS
 fn make_cors() -> Cors {
-    // let allowed_origins = AllowedOrigins::all(); // 4.
-   let allowed_origins = AllowedOrigins::some_exact(&[ // 4.
-       "https:gthackerhome.github.io",
-       "http://localhost:8080",
-       "http://127.0.0.1:8080",
-       "http://localhost:8000",
-       "http://0.0.0.0:8000"
-   ]);
+     let allowed_origins = AllowedOrigins::all(); // 4.
+   //let allowed_origins = AllowedOrigins::some_exact(&[ // 4.
+   //    "https:gthackerhome.github.io",
+   //    "http://localhost:8080",
+   //    "http://127.0.0.1:8080",
+   //    "http://localhost:8000",
+   //    "http://0.0.0.0:8000"
+   //]);
 
     CorsOptions { // 5.
         allowed_origins,
@@ -67,6 +67,10 @@ fn make_cors() -> Cors {
 pub struct LoginForm {
     pub username: String,
     pub password: String
+}
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]   
+pub struct LogoutForm {
+    pub username: String
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -151,12 +155,14 @@ fn login(form: Json<LoginForm>, connection: db::Connection) -> Response<'static>
 }
 
 //Logout User
-#[get("/logout")]
-fn logout() -> Response<'static> {
+#[post("/logout", data = "<form>")]
+fn logout(form: Json<LogoutForm>) -> Response<'static> {
+    let my_user = LogoutForm{..form.into_inner()};
+    let my_user_copy = my_user.username.clone();
     let mut response = Response::new();
     let mut now = time::now();
     now.tm_year -= 1;  
-    let mut cookie = Cookie::build("username", "")
+    let mut cookie = Cookie::build("username", my_user_copy)
         .domain("greetez.com")
         .path("/")
         .secure(true)
@@ -300,7 +306,7 @@ fn create_comment(item: Json<CreateCommentForm>, cookies: Cookies, connection: d
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/user_api", routes![view, sign_up, login])
+        .mount("/user_api", routes![view, sign_up, login, logout])
         .mount("/item_api", routes![render, posts, create_post, create_comment])
         .attach(make_cors())
         .launch();
