@@ -1,6 +1,12 @@
 <script>
 	import Comment from "./Comment.svelte";
-
+	import EditForm from './EditForm.svelte';
+	let signed_in = false;
+	if (getCookie("username") != "") {
+		signed_in = true;
+	} else {
+		signed_in = false;
+	}
 	export let item;
 	export let returnTo;
 	export let descendents = []
@@ -66,6 +72,9 @@
 	</a>
 
 	<p class="meta">submitted by {item.item.author} {calc_age()}
+	{#if signed_in} 
+		<EditForm parentid = {item.item.id} />
+	{/if}
 </article>
 
 <div class="comments">
