@@ -18,6 +18,13 @@ pub struct User {
     pub parent: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub struct UserNode {
+    pub user: User,
+    pub descendents: Vec<UserNode>
+}
+
+
 impl User{
     pub fn create(user: User, connection: &MysqlConnection) -> User {
         diesel::insert_into(users::table)
@@ -39,16 +46,18 @@ impl User{
     pub fn update(username: String, user: User, connection: &MysqlConnection) -> bool {
         diesel::update(users::table.find(username)).set(&user).execute(connection).is_ok()
     }
+    pub fn render_single(rootuser: User, connection: &MysqlConnection) -> UserNode {
+       let child_users = users::table.filter(users::username.eq(&rootuser.username)).load::<User>(connection).unwrap();
+       let mut descendents: Vec<UserNode> = Vec::new();
+       for child_user in &child_users{
+           let child_node = User::render_single(User::clone(child_user), &connection);
+           descendents.push(child_node);
+       }
+       let root_node = UserNode {user: rootuser, descendents: descendents};
+       root_node
+    }
 
 }
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub struct UserNode {
-    pub item: User,
-    pub descendents: Vec<UserNode>
-}
-
-
 
 
 

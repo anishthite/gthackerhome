@@ -235,6 +235,19 @@ fn view(username: String, connection: db::Connection) -> JsonValue {
         Err(_e) => return json!({"failure":"database err"}) 
     }
 }
+#[get("/usertree")]
+fn usertree(connection: db::Connection) -> JsonValue{
+    let rootuser = match User::read_single(String::from("aquajet"), &connection){
+    Ok(x) => x,
+    Err(_e) => {return json!({"failure":"database err"})}
+    };
+    let usertree = User::render_single(rootuser, &connection);
+    return json!(Json(usertree).into_inner());
+}
+
+
+
+
 
 //Post API
 
