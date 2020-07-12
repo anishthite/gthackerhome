@@ -28,8 +28,8 @@ mod users;
 mod items;
 mod schema;
 mod db;
-use users::{User};
-use items::{Item, ItemNode};
+use users::{User, InviteToken};
+use items::{Item};
 use chrono::prelude::*;
 
 
@@ -95,12 +95,29 @@ pub struct CreateCommentForm {
 
 //User Functions
 
+#[post("/create_token")]
+fn create_token(cookies: Cookies, connection: db::Connection) -> Json<String> {
+      let alphabet: [char; 16] = [
+          '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f'
+      ];
+      let myid = nanoid!(10, &alphabet);
+  
+      let author = match cookies.get("username") {
+          Some(x) => String::from(x.value()),
+          None => return Json(String::from("Are you signed in?")),
+      };
+      let newtoken = InviteToken{creator: author, token: myid.clone()};
+      InviteToken::create(newtoken, &connection);
+      Json(myid)
+}
+
 //Create user, 
 #[post("/sign_up", data = "<user>")]
 fn sign_up(user: Json<User>, connection: db::Connection) -> Status {
     
     let mut insert = User {admin : Some(0), ..user.into_inner()};
-    
+    let curr_time = Utc::now().timestamp();
+    insert.timecreated = curr_time;
     let hash_result  = hash(insert.password, 4);
 
     match hash_result {
@@ -115,8 +132,16 @@ fn sign_up(user: Json<User>, connection: db::Connection) -> Status {
             return Status::Conflict ;      
         }
     }
-    User::create(insert, &connection);
-    return Status::Created;
+    let tokens = InviteToken::read(&connection);
+    for token in tokens.iter(){
+        if token.token == insert.parent {
+           InviteToken::delete(token.token.clone(), &connection); 
+           insert.parent = token.creator.clone();
+           User::create(insert, &connection);
+           return Status::Created;
+        }
+    }
+    return Status::NotAcceptable;
 }
 
 //Login User
@@ -206,8 +231,8 @@ fn view(username: String, connection: db::Connection) -> JsonValue {
 
     let myuser_result = User::read_single(username, &connection);
     match myuser_result {
-        Ok(user) => return json!({"username":user.username, "about":user.about, "admin":user.admin}),
-        Err(e) => return json!({"failure":"database err"}) 
+        Ok(user) => return json!({"username":user.username, "about":user.about, "admin":user.admin, "date created":user.timecreated, "parent":user.parent}),
+        Err(_e) => return json!({"failure":"database err"}) 
     }
 }
 

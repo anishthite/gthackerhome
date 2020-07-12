@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
 use serde::{ Serialize, Deserialize };
 use diesel::{ QueryId, Queryable, Insertable, AsChangeset};
-use crate::schema::{items, items_relationships};
+use crate::schema::{items};
 
 #[table_name = "items"]
 #[derive(Clone, Serialize, Deserialize, QueryId, Queryable, Insertable, AsChangeset, Debug, PartialEq, Eq)]
@@ -20,13 +20,6 @@ pub struct Item {
     pub score: Option<i32>
 }    
     
-#[table_name = "items_relationships"]
-#[derive(Serialize, Deserialize, QueryId, Queryable, Insertable,AsChangeset, Debug, PartialEq, Eq)]
-pub struct ItemRelationship {
-    pub parent: String,
-    pub child: String
-}
-
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct ItemNode {
@@ -85,5 +78,7 @@ impl Item{
     pub fn update(id: String, item: Item, connection: &MysqlConnection) -> bool {
         diesel::update(items::table.find(id)).set(&item).execute(connection).is_ok()
     }
-
+    pub fn delete(id: String, connection: &MysqlConnection) -> bool {
+        diesel::delete(items::table.find(id)).execute(connection).is_ok()
+    }
 }

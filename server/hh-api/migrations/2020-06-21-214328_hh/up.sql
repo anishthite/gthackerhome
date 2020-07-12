@@ -3,8 +3,9 @@ create table users (
 `username`  VARCHAR(200) PRIMARY KEY NOT NULL,
 `password` TEXT NOT NULL,
 `about` TEXT,
-`admin` INT(11) 
-
+`admin` INT(11),
+`timecreated` BIGINT NOT NULL,
+`parent` VARCHAR(200) NOT NULL
 );
 
 create table items (
@@ -21,9 +22,9 @@ create table items (
 
 );
 
-create table items_relationships(
-`parent` VARCHAR(200) PRIMARY KEY NOT NULL,
-`child` VARCHAR(200) NOT NULL
+create table invite_tokens(
+`token` VARCHAR(200) PRIMARY KEY NOT NULL,
+`creator` VARCHAR(200) NOT NULL
 );
 
 -- Your SQL goes here
