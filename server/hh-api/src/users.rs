@@ -17,10 +17,15 @@ pub struct User {
     pub timecreated: i64,
     pub parent: String,
 }
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub struct PubUser {
+    pub username: String,
+    pub timecreated: i64,
+}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct UserNode {
-    pub user: User,
+    pub user: PubUser,
     pub descendents: Vec<UserNode>
 }
 
@@ -47,21 +52,17 @@ impl User{
         diesel::update(users::table.find(username)).set(&user).execute(connection).is_ok()
     }
     pub fn render_single(rootuser: User, connection: &MysqlConnection) -> UserNode {
-       let child_users = users::table.filter(users::username.eq(&rootuser.username)).load::<User>(connection).unwrap();
+       let child_users = users::table.filter(users::parent.eq(&rootuser.username)).load::<User>(connection).unwrap();
        let mut descendents: Vec<UserNode> = Vec::new();
        for child_user in &child_users{
            let child_node = User::render_single(User::clone(child_user), &connection);
            descendents.push(child_node);
        }
-       let root_node = UserNode {user: rootuser, descendents: descendents};
+       let root_node = UserNode {user: PubUser{username: rootuser.username, timecreated: rootuser.timecreated}, descendents: descendents};
        root_node
     }
 
 }
-
-
-
-
 
 
 #[table_name = "invite_tokens"]

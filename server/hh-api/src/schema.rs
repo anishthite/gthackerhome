@@ -21,6 +21,13 @@ table! {
 }
 
 table! {
+    items_relationships (parent) {
+        parent -> Varchar,
+        child -> Varchar,
+    }
+}
+
+table! {
     users (username) {
         email -> Text,
         username -> Varchar,
@@ -35,5 +42,6 @@ table! {
 allow_tables_to_appear_in_same_query!(
     invite_tokens,
     items,
+    items_relationships,
     users,
 );

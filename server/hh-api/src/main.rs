@@ -133,6 +133,12 @@ fn sign_up(user: Json<User>, connection: db::Connection) -> Status {
         }
     }
     let tokens = InviteToken::read(&connection);
+    if (tokens.len() == 0){
+           User::create(insert, &connection);
+           return Status::Created;
+    }
+    
+    
     for token in tokens.iter(){
         if token.token == insert.parent {
            InviteToken::delete(token.token.clone(), &connection); 
@@ -344,7 +350,7 @@ fn create_comment(item: Json<CreateCommentForm>, cookies: Cookies, connection: d
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/user_api", routes![view, sign_up, login, logout])
+        .mount("/user_api", routes![view, sign_up, login, logout, create_token, usertree])
         .mount("/item_api", routes![render, posts, create_post, create_comment])
         .attach(make_cors())
         .launch();
