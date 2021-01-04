@@ -10,7 +10,7 @@
 	let offset;
 	let postsize
 
-	$: fetch(`https://greetez.com:4343/item_api/posts`)
+	$: fetch(`https://brrrr.live:4343/item_api/posts`)
 		.then(r => r.json())
 		.then(data => {
 			postsize = data.length;

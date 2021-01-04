@@ -8,6 +8,7 @@
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
   <link rel='stylesheet' href='./global.css'>
   <style type="text/css">code{white-space: pre;}</style>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
 
@@ -22,7 +23,7 @@ function showUsername() {
 	var username = getCookie("username");
 	if (username != "") {
 		document.getElementById("signup").style.display = "none";
-		document.getElementById("welcomeusername").innerHTML="<a href='https://greetez.com:4343/user/" + username + "'>Welcome " + username + " </a><a href='./submitpost.html'>Submit</a><a href='javascript:void(0)' onclick='logout();return false;'>Logout</p>";
+		document.getElementById("welcomeusername").innerHTML="<a href='https://brrrr.live:4343/user_api/" + username + "'>Welcome " + username + " </a><a href='./submitpost.html'>Submit</a><a href='javascript:void(0)' onclick='logout();return false;'>Logout</a><a href='./tokens.html'>Invite Tokens</a>";
 		document.getElementById("welcomeusername").style.display = "initial";
 	} else {
 		document.getElementById("signup").style.display = "initial";
@@ -31,7 +32,7 @@ function showUsername() {
 }
 
 function logout(){
-axios.post('https://greetez.com:4343/user_api/logout',{"username": getCookie("username")}, {withCredentials: true}
+axios.post('https://brrrr.live:4343/user_api/logout',{"username": getCookie("username")}, {withCredentials: true}
   ).then((response) => {
   console.log(response);
   clearCookie("username");
@@ -93,12 +94,21 @@ function getCookie(cname) {
 <li>GT community members who want to see interesting side-projects other people are working on</li>
 <li>GT community members who want to find interesting side-projects to join</li>
 </ul>
-<!-- ## Joining:
-There is a public invite tree
+<h2>Joining:</h2>
+<p>
 There are two ways to join:
 Ask one of the current members for an invite (and provide verification you are a current/past GT student)
 Explanation: We derived this from the Lobste.rs invite system. It allows for the community to grow organically while minimizing new spammers and providing some accountability for allowing spammers and malevolent actors (moderators will look up the invitation tree to consider disabling their inviter's ability to send invitations or, rarely, also banning). 
-Submit a project you want to post to the mods, if accepted you’ll get an invite  -->
+Submit a project you want to post to the mods, if accepted you’ll get an invite
+</p>
+
+<h2>So What Kind of Content to post?</h2>
+<ul>
+<li>Show off complete projects</li>
+<li>Ask for technical help, feedback, or people to join on a current project</li>
+<li>Potential project Ideas </li>
+</ul>
+
 <h2 id="rules">Rules:</h2>
 <h3 id="in-general">In General:</h3>
 <ul>

@@ -29,7 +29,7 @@ var mydata = {
               "text": document.getElementById('commentfield').value,
               
             };
-  axios.post('https://greetez.com:4343/item_api/create_comment',
+  axios.post('https://brrrr.live:4343/item_api/create_comment',
   mydata,{withCredentials: true}
   ).then((response) => {
 	alert("created comment");

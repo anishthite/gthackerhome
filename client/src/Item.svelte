@@ -70,6 +70,7 @@
 			<small>{item.item.url}</small>
 		{/if}
 	</a>
+	<p>{item.item.text}</p>
 
 	<p class="meta">submitted by {item.item.author} {calc_age()}
 	{#if signed_in} 
